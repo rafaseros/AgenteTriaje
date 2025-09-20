@@ -1,0 +1,5 @@
+{
+  "patient": { "id": "p101", "name": "Luis Gómez", "gender": "M", "age": 28 },
+  "vitals": { "systolic": 118, "diastolic": 76, "heartRate": 72, "respRate": 16, "temperature": 36.8, "spo2": 98, "painScore": 1 },
+  "symptoms": { "text": "Congestión nasal leve." }
+}

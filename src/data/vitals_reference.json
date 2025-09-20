@@ -1,0 +1,45 @@
+{
+    "units": {
+      "systolic": "mmHg", "diastolic": "mmHg", "heartRate": "lpm",
+      "respRate": "rpm", "temperature": "°C", "spo2": "%", "painScore": "0-10"
+    },
+    "plausible_limits": {
+      "systolic": { "min": 50, "max": 260 }, "diastolic": { "min": 30, "max": 160 },
+      "heartRate": { "min": 20, "max": 220 }, "respRate": { "min": 5, "max": 60 },
+      "temperature": { "min": 30.0, "max": 43.5 }, "spo2": { "min": 50, "max": 100 },
+      "painScore": { "min": 0, "max": 10 }
+    },
+    "normal_ranges_adulto": {
+      "systolic": { "low": 100, "high": 139 }, "diastolic": { "low": 60, "high": 89 },
+      "heartRate": { "low": 60, "high": 100 }, "respRate": { "low": 12, "high": 20 },
+      "temperature": { "low": 36.1, "high": 37.5 }, "spo2": { "low": 95, "high": 100 },
+      "painScore": { "low": 0, "high": 3 }
+    },
+    "severity_thresholds": {
+      "spo2": { "warning": "<=92", "danger": "<90" },
+      "temperature": { "warning": ">=38.5", "danger": ">=39.0" },
+      "heartRate": { "warning": ">=110", "danger": ">=130" },
+      "respRate": { "warning": ">=22", "danger": ">=26" },
+      "systolic": { "warning": "<=100", "danger": "<90" },
+      "painScore": { "warning": ">=7", "danger": ">=9" }
+    },
+    "complexity_rules": {
+      "simple": "0–1 'danger' y máx 1 'warning'; sin combinaciones críticas.",
+      "medio": "≥2 warnings o 1 danger aislado sin otra comorbilidad evidente.",
+      "complejo": "≥2 dangers o combinaciones de alto riesgo (p.ej., fiebre alta + hipotensión + FC alta, o SpO2<90 con FR>24)."
+    },
+    "routing_rules": [
+      {
+        "if": "spo2 < 90 or (temperature >= 39 and heartRate >= 120 and systolic < 100)",
+        "route": "emergencia_inmediata", "triageClass": "emergencias",
+        "source": "prot-oximetria|prot-fiebre-sepsis|prot-hipotension|prot-taquicardia|prot-taquipnea"
+      },
+      {
+        "if": "spo2 <= 92 or heartRate >= 110 or respRate >= 22 or systolic <= 100 or temperature >= 38.5 or painScore >= 7",
+        "route": "complejo", "triageClass": "urgencias",
+        "source": "prot-oximetria|prot-taquicardia|prot-taquipnea|prot-hipotension|prot-fiebre-sepsis|prot-dolor"
+      },
+      { "if": "else", "route": "rutinario", "triageClass": "consultorio", "source": "prot-rangos-normales" }
+    ]
+  }
+  

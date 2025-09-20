@@ -1,0 +1,5 @@
+{
+  "patient": { "id": "p202", "name": "María Rojas", "gender": "F", "age": 45 },
+  "vitals": { "systolic": 102, "diastolic": 67, "heartRate": 115, "respRate": 23, "temperature": 38.6, "spo2": 94, "painScore": 6 },
+  "symptoms": { "text": "Fiebre, malestar general y tos desde hace 2 días." }
+}

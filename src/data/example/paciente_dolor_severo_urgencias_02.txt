@@ -1,0 +1,5 @@
+{
+  "patient": { "id": "p404", "name": "Ana Pérez", "gender": "F", "age": 34 },
+  "vitals": { "systolic": 124, "diastolic": 82, "heartRate": 98, "respRate": 18, "temperature": 37.0, "spo2": 97, "painScore": 9 },
+  "symptoms": { "text": "Dolor abdominal intenso 9/10." }
+}

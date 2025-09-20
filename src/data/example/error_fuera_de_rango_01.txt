@@ -1,0 +1,5 @@
+{
+  "patient": { "id": "e702", "name": "Caso No Plausible", "gender": "F", "age": 29 },
+  "vitals": { "systolic": 300, "diastolic": 10, "heartRate": 10, "respRate": 2, "temperature": 45.0, "spo2": 40, "painScore": 11 },
+  "symptoms": { "text": "Valores de prueba para validar límites y banderas." }
+}

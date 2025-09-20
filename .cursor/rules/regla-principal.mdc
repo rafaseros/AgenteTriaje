@@ -1,0 +1,162 @@
+---
+description: Reglas del proyecto para el taller "IA para Toma de Decisiones en Triaje"
+globs: ["**/*"]
+alwaysApply: true
+---
+
+[REGLAS DEL PROYECTO — TALLER “IA para Toma de Decisiones en Triaje”]
+
+Contexto
+
+- Lenguaje de trabajo: Español.
+- Proyecto base ya configurado (React, Tailwind, Zod, @google/generative-ai, Router, RHF, Axios).
+- La clave de Gemini está en `.env` como **API_GEMINI** (no versionado).
+- Visualización del flujo con **componentes simples** (sin React Flow).
+- Política de ejecución: **NO hacer commits** durante el taller; al finalizar **cada paso**: ejecutar **`npm run build`** y corregir errores.
+
+Alcance del taller
+
+- ÚNICA página: **AgentStudioPage** con 5 zonas:
+  1. **Cargar archivo** `.txt|.json`
+  2. **Panel de Flujo** (badges conectados: Observe → Think → Plan → Act → Reflect/EO → Guards → Result)
+  3. **Timeline** (pasos con notas y timestamps)
+  4. **Métricas** (duración por nodo y total)
+  5. **Visor JSON** (AGENT_OUTPUT v1 con Copiar/Descargar)
+- Sin UI clínica. Input = archivo `.txt` con **AGENT_INPUT v1**. Salida = **AGENT_OUTPUT v1**.
+
+Arquitectura mínima (directorios)
+
+- `src/pages` → `AgentStudioPage`
+- `src/agent` → `AgentController`, `ToolRegistry`, heurística O-T-P-A-R
+- `src/services` → `InputSchema`, `PromptChaining`, `RetrievalService`, `Router`, `TriageService`, `AIClient/GeminiClient/Stub`, `Evaluator`, `Guards`, `OutputVerifier`, `Metrics`, `AuditLog`
+- `src/ui` → `FilePicker`, `PanelFlujoAgente`, `TimelineDecisiones`, `PanelMetricas`, `VisorJSON`, `BarraDemo`, `RouteBadge`, `Alerta`
+- `src/data` → **YA EXISTEN**: `protocols.json`, `vitals_reference.json`, y **ejemplos de pacientes** (ver más abajo)
+- `src/styles` → estilos globales
+
+Contratos de datos
+
+- **AGENT_INPUT v1**  
+  `{ patient:{id,name,gender,age}, vitals:{systolic,diastolic,heartRate,respRate,temperature,spo2,painScore?}, symptoms:{text} }`
+- **AGENT_OUTPUT v1**  
+  `{ runId, startedAt, endedAt, input, route, decision:{triageClass,explanation,fuentes_usadas[]}, steps[], evaluator{threshold,iterations[]}, guards{inputIssues[],outputIssues[]}, metrics{totalMs,byNode[],iterationsEO,guardsTriggered}, auditLog[] }`
+
+Principios del Agente
+
+- **Uso condicional de herramientas**:
+  - Caso **simple** → atajo determinista (solo reglas; sin LLM, sin Evaluator).
+  - Caso **medio** → Retrieval + **Gemini** (clasificación).
+  - Caso **complejo/alto riesgo** → Retrieval + Gemini + **Evaluator** (segunda opinión).
+- **Evitar bucles**:
+  - `maxIterations` (2–3), `confidenceThreshold` (~0.75), `timeout` por paso (6–8s).
+  - Botón “Cancelar ejecución”.
+- **Anti-alucinación**:
+  - Respuestas **estrictamente JSON** (sin texto extra).
+  - **Citar fuentes** por `id` (subconjunto de `src/data/protocols.json`).
+  - Si falta evidencia → `requiere_mas_datos: true` y sugerir 1–2 datos concretos (no inventar).
+
+UI (estructura conceptual)
+
+- **Barra superior**: título + botones (Cargar archivo, Reproducir flujo) + toggles (Presenter, Focus, Dark opcional).
+- **Columna izquierda**: FilePicker (con issues visibles), RouteBadge, PanelMetricas.
+- **Columna central**: PanelFlujoAgente con badges conectados (estado: pendiente/activo/ok/error).
+- **Columna derecha**: TimelineDecisiones (pasos breves) + VisorJSON (AGENT_OUTPUT v1).
+
+Reglas de ejecución de pasos (siempre visibles en UI)
+
+- S1 Observe: al cargar y validar input → **badge Observe = ok**, issues visibles (si existen).
+- S2 Think: contexto + retrieval + chaining → **badge Think = ok**, Timeline añade 3–4 pasos.
+- S3 Plan: ruta y selección de herramientas → **badge Plan = ok**, RouteBadge visible.
+- S4 Act: decisión por reglas o Gemini → **badge Act = ok**, JSON parcial con `decision`.
+- S5 Reflect: EO si procede (límite de iteraciones) → **badge Reflect/EO = ok** o escalado.
+- S6 Guards: verificación de salida + auditoría → **badge Guards = ok** o **error** + Alerta.
+- S7 Entrega: métricas y JSON final + replay → **badge Result = ok**.
+
+Política de ejecución:
+
+- **NO hacer commits** durante el taller.
+- Al final de **cada paso**: ejecutar **`npm run build`** y corregir cualquier error antes de continuar.
+
+```
+
+---
+
+## 📦 Recordatorio de datos y ejemplos
+
+- **Rutas**:
+  - `./src/data/protocols.json`
+  - `./src/data/vitals_reference.json`
+  - `./src/data/examples/*.txt` (8 ejemplos: simples, medio, complejo, emergencias, faltantes, fuera de rango, JSON roto)
+- Estos archivos normalizan resultados y reducen variabilidad entre corridas.
+
+---
+
+## 🧩 Plantillas GEMINI (config determinista)
+
+> Config recomendada en el cliente:
+> `{ temperature: 0, topK: 1, topP: 0.1, candidateCount: 1, maxOutputTokens: 512 }`
+> Forzar `responseMimeType: "application/json"` si la SDK lo permite.
+
+### A) Clasificación (Paso S4 — Act)
+```
+
+[ROL]
+Asistente de triaje. No diagnosticas ni indicas tratamiento. Solo clasificar el caso según reglas y evidencia.
+Si falta evidencia, devuelve "requiere_mas_datos": true. No inventes. Cita fuentes por sus IDs.
+
+[ENTRADAS]
+
+- Vitals (adulto): {{vitals_json}}
+- Síntomas: {{symptoms_text_sanitized}}
+- Ruta planificada: {{route}}
+- Protocolos recuperados (id→snippet): {{retrieval_pairs_json}}
+- Reglas y umbrales: {{vitals_reference_json_min}}
+
+[OBJETIVO — JSON ESTRICTO]
+{
+"triageClass": "consultorio" | "urgencias" | "emergencias",
+"explanation": "string (<=240 chars, basada en evidencia)",
+"fuentes_usadas": ["prot-id-1", "prot-id-2"],
+"requiere_mas_datos": false
+}
+
+[REGLAS]
+
+- Aplica primero "routing_rules".
+- Solo en casos medio/comp, añade razonamiento corto anclado a snippets.
+- "fuentes_usadas" debe ser subconjunto de los IDs proporcionados en protocolos.
+- Prohibido inventar síntomas, valores o fuentes.
+- Si falta evidencia, indica "requiere_mas_datos": true y sugiere 1–2 datos.
+  [FORMATO] Responde EXCLUSIVAMENTE con JSON válido.
+
+```
+
+### B) Evaluación (Paso S5 — Reflect/EO)
+```
+
+[ROL]
+Evaluador de calidad de decisión de triaje. Verificas consistencia con reglas/umbrales y evidencia. No cambias el input.
+
+[ENTRADAS]
+
+- Decisión actual: {{decision_json}}
+- Contexto (vitals + síntomas): {{context_json}}
+- Reglas/umbrales: {{vitals_reference_json_min}}
+- Evidencia (id→snippet): {{retrieval_pairs_json}}
+
+[OBJETIVO — JSON ESTRICTO]
+{
+"score": number (0..1),
+"critiques": ["máx 3 puntos concretos"],
+"needsMoreInfo": boolean
+}
+
+[CRITERIOS]
+
+- Penaliza si "fuentes_usadas" no justifican la clase propuesta.
+- Penaliza si contradice "routing_rules".
+- Marca datos faltantes cuando "needsMoreInfo": true.
+  [FORMATO] Responde EXCLUSIVAMENTE con JSON válido.
+
+```
+
+```

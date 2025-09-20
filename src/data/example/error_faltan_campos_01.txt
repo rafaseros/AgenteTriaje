@@ -1,0 +1,5 @@
+{
+  "patient": { "id": "e601", "name": "Caso Incompleto", "gender": "X", "age": 50 },
+  "vitals": { "systolic": 120, "diastolic": 80, "heartRate": 75, "temperature": 37.0, "spo2": 97 },
+  "symptoms": { "text": "Texto válido, pero faltan campos de FR y painScore." }
+}

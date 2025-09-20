@@ -1,0 +1,5 @@
+{
+  "patient": { "id": "p505", "name": "Diego Campos", "gender": "M", "age": 70 },
+  "vitals": { "systolic": 100, "diastolic": 65, "heartRate": 85, "respRate": 14, "temperature": 36.7, "spo2": 96, "painScore": 2 },
+  "symptoms": { "text": "Dolor torácico intermitente irradiado al brazo izquierdo, sin cambios claros en signos." }
+}

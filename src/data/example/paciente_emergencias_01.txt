@@ -1,0 +1,5 @@
+{
+  "patient": { "id": "p303", "name": "Jorge Lima", "gender": "M", "age": 62 },
+  "vitals": { "systolic": 86, "diastolic": 55, "heartRate": 128, "respRate": 30, "temperature": 39.2, "spo2": 85, "painScore": 7 },
+  "symptoms": { "text": "Dificultad respiratoria importante y fiebre alta." }
+}

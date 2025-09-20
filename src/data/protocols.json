@@ -1,0 +1,10 @@
+[
+    { "id": "prot-oximetria", "title": "Saturación de oxígeno en triaje", "keywords": ["spo2","hipoxia","saturación","oxígeno","respiración"], "snippet": "SpO₂ < 90% suele indicar emergencia respiratoria. 90–92% sugiere urgencia. ≥93% generalmente es aceptable según contexto clínico." },
+    { "id": "prot-hipotension", "title": "Hipotensión arterial y choque", "keywords": ["hipotension","presión","sistólica","choque","perfusión"], "snippet": "TA sistólica < 90 mmHg o descenso significativo con taquicardia puede sugerir hipoperfusión." },
+    { "id": "prot-fiebre-sepsis", "title": "Fiebre alta y sospecha de sepsis", "keywords": ["fiebre","temperatura","sepsis","infección"], "snippet": "Temp ≥ 39°C con taquicardia marcada y TA baja: considerar sepsis y priorizar evaluación urgente." },
+    { "id": "prot-taquipnea", "title": "Taquipnea y dificultad respiratoria", "keywords": ["respRate","taquipnea","disnea","FR"], "snippet": "FR > 24 rpm sugiere compromiso respiratorio; asociar con SpO₂ y síntomas." },
+    { "id": "prot-taquicardia", "title": "Taquicardia en triaje", "keywords": ["heartRate","fc","taquicardia","pulso"], "snippet": "FC > 120 lpm persistente puede indicar urgencia; valorar con PA, temperatura y síntomas." },
+    { "id": "prot-dolor", "title": "Escala de dolor", "keywords": ["dolor","pain","EVA"], "snippet": "Dolor ≥ 8/10 amerita priorización; contextualizar con signos vitales y edad." },
+    { "id": "prot-rangos-normales", "title": "Rangos normales de signos vitales (adulto)", "keywords": ["normales","referencia","rango","adulto"], "snippet": "Valores típicos en reposo (adulto): TA≈120/80, FC 60–100, FR 12–20, Temp 36.1–37.5°C, SpO₂ 95–100%." }
+  ]
+  
